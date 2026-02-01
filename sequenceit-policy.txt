@@ -1,0 +1,29 @@
+SequenceIT – General Service Agreement
+
+1.ENGAGEMENT TERMS
+  1.1 Project Kickoff: Work commences only after the signed Proposal and Advance Payment are received.
+  1.2 Scope Definition: Any requirements added after the signing of this document are considered "Out of Scope" and will be billed separately.
+
+2. PAYMENT & ADVANCE POLICY
+  2.1 Advance Requirement: A non-refundable 40% advance is required to initiate any project.
+  2.2 Milestone Payments: Payments are divided into Phase I (Design), Phase II (MVP), and Phase III (Final Delivery).
+  2.3 Sequential Progress: Each milestone must be cleared before moving to the next phase.
+  2.4 Late Fees: Invoices overdue by 7 days incur a 5% service fee.
+
+3. REFUND & CANCELLATION
+  3.1 Work-Based Refunds: Payments for completed milestones are 100% non-refundable.
+  3.2 Advance Retention: The 40% kickoff fee is retained by SequenceIT to cover resource allocation costs.
+  3.3 Cancellation: Clients may cancel at any time but remain liable for all work hours logged up to the cancellation date.
+
+4. INFRASTRUCTURE & ASSETS
+  4.1 External Costs: Hosting, Domains, and API keys (e.g., Google Maps, Firebase) are the financial responsibility of the Client.
+  4.2 Third-Party Changes: SequenceIT is not liable for price hikes or service changes from external providers like AWS or Apple.
+
+5. MAINTENANCE & SUPPORT
+  5.1 Grace Period: We provide 30 days of free technical support for existing features post-launch.
+  5.2 Support Limits: Support does not include new feature development or design iterations.
+  5.3 Retainers: Ongoing maintenance is billed at the monthly rate specified in Section 9 of the Proposal.
+
+6. OWNERSHIP & LICENSING
+  6.1 Rights Transfer: Intellectual Property rights are transferred to the Client only upon receipt of 100% of the total project fee.
+  6.2 Portfolio Use: SequenceIT reserves the right to showcase the project in professional portfolios unless a formal NDA is active.
