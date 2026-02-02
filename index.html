@@ -18,11 +18,21 @@
       <button class="tab-btn" onclick="openTab(event, 'preview')">
         3. Final Preview
       </button>
+      <button class="tab-btn" onclick="openTab(event, 'drafts')">
+        4. Saved Drafts
+      </button>
       <hr />
+      <button
+        class="download-btn save-draft-btn"
+        id="saveDraftBtn"
+        onclick="saveDraft()"
+      >
+        💾 Save Draft
+      </button>
       <button
         class="download-btn"
         id="downloadBtn"
-        onclick="window.print()"
+        onclick="downloadAndSave()"
         style="display: none"
       >
         📄 Download PDF
@@ -745,11 +755,26 @@ The Client shall own all rights, title, and interest in the deliverables upon fu
         ></textarea>
       </div>
 
+      <div id="drafts" class="tab-content">
+        <div class="drafts-container">
+          <div class="drafts-header">
+            <h2>📁 Saved Drafts</h2>
+            <p class="drafts-subtitle">
+              Manage and edit your saved proposal drafts
+            </p>
+          </div>
+          <div id="draftsList" class="drafts-list">
+            <!-- Saved drafts will appear here -->
+          </div>
+        </div>
+      </div>
+
       <div id="preview" class="tab-content">
         <!-- Preview content will be dynamically generated here -->
       </div>
     </main>
 
     <script src="script.js"></script>
+    <script src="draft-manager.js"></script>
   </body>
 </html>

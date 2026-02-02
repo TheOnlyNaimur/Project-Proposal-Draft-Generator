@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SequenceIT - Pro-Draft Generator Login</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      /* Animated background elements */
+      .bg-shape-1,
+      .bg-shape-2 {
+        position: fixed;
+        border-radius: 50%;
+        opacity: 0.05;
+        pointer-events: none;
+      }
+
+      .bg-shape-1 {
+        width: 400px;
+        height: 400px;
+        top: -100px;
+        right: -100px;
+        background: radial-gradient(circle, #6366f1, transparent);
+        animation: float 20s infinite ease-in-out;
+      }
+
+      .bg-shape-2 {
+        width: 300px;
+        height: 300px;
+        bottom: -50px;
+        left: -50px;
+        background: radial-gradient(circle, #8b5cf6, transparent);
+        animation: float 25s infinite ease-in-out reverse;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(30px, 30px);
+        }
+      }
+
+      .login-container {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: 24px;
+        padding: 60px 48px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow:
+          0 25px 50px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        z-index: 10;
+        animation: slideUp 0.6s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .logo-section {
+        text-align: center;
+        margin-bottom: 48px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+      }
+
+      .logo-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 36px;
+        box-shadow:
+          0 15px 40px rgba(99, 102, 241, 0.35),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .logo-icon:hover {
+        transform: translateY(-4px);
+        box-shadow:
+          0 20px 50px rgba(99, 102, 241, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.15);
+      }
+
+      h1 {
+        color: #f1f5f9;
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+      }
+
+      .subtitle {
+        color: #cbd5e1;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.6;
+        letter-spacing: 0.3px;
+      }
+
+      .form-section {
+        margin-bottom: 0;
+      }
+
+      .form-section.hidden {
+        display: none;
+      }
+
+      .tab-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        background: rgba(51, 65, 85, 0.3);
+        padding: 6px;
+        border-radius: 10px;
+      }
+
+      .tab-buttons button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        background: transparent;
+        color: #cbd5e1;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 14px;
+      }
+
+      .tab-buttons button.active {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+      }
+
+      label {
+        display: block;
+        color: #e2e8f0;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        margin-top: 22px;
+        letter-spacing: 0.3px;
+      }
+
+      label:first-of-type {
+        margin-top: 0;
+      }
+
+      input[type="email"],
+      input[type="password"],
+      input[type="text"] {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1.5px solid rgba(99, 102, 241, 0.25);
+        border-radius: 12px;
+        background: rgba(30, 41, 59, 0.6);
+        color: #f1f5f9;
+        font-size: 15px;
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      input[type="email"]:focus,
+      input[type="password"]:focus,
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #6366f1;
+        background: rgba(30, 41, 59, 0.9);
+        box-shadow:
+          0 0 0 4px rgba(99, 102, 241, 0.15),
+          inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      input::placeholder {
+        color: #64748b;
+        font-weight: 400;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 28px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+          0 10px 30px rgba(99, 102, 241, 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        letter-spacing: 0.5px;
+      }
+
+      button[type="submit"]:hover {
+        transform: translateY(-3px);
+        box-shadow:
+          0 15px 40px rgba(99, 102, 241, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.15);
+      }
+
+      button[type="submit"]:active {
+        transform: translateY(-1px);
+      }
+
+      button[type="submit"]:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .error-message {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        display: none;
+        backdrop-filter: blur(4px);
+      }
+
+      .error-message.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .success-message {
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        color: #86efac;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        display: none;
+        backdrop-filter: blur(4px);
+      }
+
+      .success-message.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .footer-text {
+        text-align: center;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: 32px;
+        letter-spacing: 0.3px;
+      }
+
+      .footer-text button {
+        background: none;
+        border: none;
+        color: #6366f1;
+        cursor: pointer;
+        font-weight: 600;
+        padding: 0;
+        text-decoration: underline;
+      }
+
+      .footer-text button:hover {
+        color: #8b5cf6;
+      }
+
+      /* Responsive */
+      @media (max-width: 600px) {
+        .login-container {
+          padding: 40px 24px;
+          max-width: 100%;
+          margin: 20px;
+          border-radius: 20px;
+        }
+
+        h1 {
+          font-size: 28px;
+        }
+
+        .logo-icon {
+          width: 60px;
+          height: 60px;
+          font-size: 28px;
+        }
+
+        label {
+          font-size: 14px;
+        }
+
+        button[type="submit"] {
+          padding: 13px 18px;
+          font-size: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-shape-1"></div>
+    <div class="bg-shape-2"></div>
+
+    <div class="login-container">
+      <div class="logo-section">
+        <div class="logo-icon">📋</div>
+        <h1>Pro-Draft</h1>
+        <p class="subtitle">Professional Proposal Generator for SequenceIT</p>
+      </div>
+
+      <div class="error-message" id="errorMessage"></div>
+      <div class="success-message" id="successMessage"></div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="form-section" onsubmit="handleLogin(event)">
+        <label for="loginEmail">Email Address</label>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="you@sequenceit.com"
+          required
+        />
+
+        <label for="loginPassword">Password</label>
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="••••••••"
+          required
+        />
+
+        <button type="submit">
+          <span id="loginButtonText">Sign In</span>
+        </button>
+      </form>
+
+      <div class="footer-text">
+        <p>SequenceIT Pro-Draft Generator</p>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document
+          .querySelectorAll(".form-section")
+          .forEach((form) => form.classList.add("hidden"));
+
+        if (tab === "login") {
+          document.querySelectorAll(".tab-btn")[0].classList.add("active");
+          document.getElementById("loginForm").classList.remove("hidden");
+        }
+      }
+
+      function showError(message) {
+        const errorEl = document.getElementById("errorMessage");
+        errorEl.textContent = message;
+        errorEl.classList.add("show");
+        setTimeout(() => errorEl.classList.remove("show"), 5000);
+      }
+
+      function showSuccess(message) {
+        const successEl = document.getElementById("successMessage");
+        successEl.textContent = message;
+        successEl.classList.add("show");
+        setTimeout(() => successEl.classList.remove("show"), 3000);
+      }
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        const button = event.target.querySelector('button[type="submit"]');
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<span class="loading-spinner"></span>Signing in...';
+
+        try {
+          // Get Supabase instance
+          const sb = window.supabase_instance || supabaseClient;
+
+          if (!sb) {
+            throw new Error(
+              "Database is initializing... Please wait and try again.",
+            );
+          }
+
+          // Query users table for matching email and password
+          const { data: users, error } = await sb
+            .from("users")
+            .select("*")
+            .eq("email", email)
+            .eq("password", password);
+
+          if (error) {
+            console.error("Query error:", error);
+            throw new Error("Database error: " + error.message);
+          }
+
+          if (!users || users.length === 0) {
+            throw new Error("Invalid email or password");
+          }
+
+          // Store user session in localStorage
+          const user = users[0];
+          localStorage.setItem(
+            "currentUser",
+            JSON.stringify({
+              id: user.id,
+              email: user.email,
+              name: user.name,
+            }),
+          );
+
+          showSuccess("Login successful! Redirecting...");
+          setTimeout(() => {
+            window.location.href = "app.html";
+          }, 1500);
+        } catch (error) {
+          console.error("Login error:", error);
+          showError(error.message || "Login failed. Please try again.");
+          button.disabled = false;
+          button.innerHTML = originalText;
+        }
+      }
+
+      // Check if already logged in
+      window.addEventListener("load", () => {
+        const currentUser = localStorage.getItem("currentUser");
+        if (currentUser) {
+          window.location.href = "app.html";
+        }
+      });
+    </script>
+  </body>
+</html>
