@@ -125,7 +125,7 @@ async function callGroqAPI(projectDescription) {
       {
         role: "system",
         content:
-          "You are a professional business proposal generator. Analyze the user's project description and extract all relevant information to generate a detailed, realistic project proposal in valid JSON format. CRITICAL: Use the EXACT data provided by the user - do not modify project names, budgets, timelines, features, or any other specific details mentioned. Only infer missing details that were not explicitly provided. Always respond with proper JSON structure.",
+          "You are a professional business proposal generator. CRITICAL RULE: You MUST use the EXACT data provided by the user WITHOUT ANY MODIFICATIONS. If the user mentions specific project names, budgets, timelines, features, costs, or any other details - use them VERBATIM. Do NOT change numbers, do NOT optimize budgets, do NOT rephrase project names, do NOT adjust timelines. Your job is to structure the provided information into JSON format and ONLY generate content for fields that the user did NOT explicitly mention. Always respond with valid JSON.",
       },
       {
         role: "user",
@@ -133,7 +133,7 @@ async function callGroqAPI(projectDescription) {
       },
     ],
     temperature: 0.7,
-    max_tokens: 4000,
+    max_tokens: 8000,
     response_format: { type: "json_object" },
   };
 
@@ -147,71 +147,127 @@ async function callGroqAPI(projectDescription) {
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
+    console.error("API Error Response:", errorData);
     throw new Error(
-      errorData.error?.message || `API Error: ${response.status}`
+      errorData.error?.message || `API Error: ${response.status} - ${response.statusText}`
     );
   }
 
   const data = await response.json();
+  console.log("API Response:", data);
+  
+  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    throw new Error("Invalid API response structure");
+  }
+  
   return data.choices[0].message.content;
 }
 
 // Build Prompt for AI
 function buildPrompt(projectDescription) {
-  return `Analyze the following project description and generate a complete professional project proposal.
+  return `You are a professional business proposal generator. Analyze the project description and generate a complete, detailed proposal that follows the EXACT structure below.
 
 PROJECT DESCRIPTION:
 ${projectDescription}
 
-INSTRUCTIONS:
-1. Carefully read the project description and extract all relevant information
-2. Use EXACT data provided by the user - preserve project titles, budgets, timelines, feature names, and all specific details as written
-3. Only infer or generate content for fields that are NOT explicitly mentioned in the description
-4. If the user provides a budget amount, use it exactly - do not adjust or "optimize" it
-5. If the user provides specific feature names or deliverables, use them verbatim
-6. If the user provides a timeline, use it exactly as stated
-7. For any missing information, generate realistic and appropriate content based on the project context
+ABSOLUTE CRITICAL RULES - VIOLATION WILL RESULT IN REJECTION:
+1. 🚫 NEVER CHANGE USER-PROVIDED DATA: If user writes "500000 BDT budget" - use EXACTLY 500000, not 499000 or 501000
+2. 🚫 NEVER REPHRASE PROJECT NAMES: If user writes "Tour Guide Website" - use EXACTLY that, not "Tourism Platform" or "Travel Website"
+3. 🚫 NEVER MODIFY TIMELINES: If user writes "2 months" - use EXACTLY that, not "8 weeks" or "60 days"
+4. 🚫 NEVER ALTER FEATURE NAMES: If user lists "Payment Gateway" - use EXACTLY that wording
+5. ✅ ONLY GENERATE content for fields NOT mentioned by the user
+6. ✅ ALL costs MUST be in BDT (Bangladeshi Taka)
+7. ✅ If budget is provided, break it down realistically but TOTAL must match EXACTLY
 
-Generate a JSON response with this EXACT structure:
+Generate a JSON response with this EXACT structure matching the template:
+
 {
-  "documentId": "PROP-2026-XXXX",
-  "projectTitle": "Professional project title based on the description",
-  "executiveSummary": "2-3 paragraph summary of the project vision, goals, and expected outcomes",
-  "background": "Context and history relevant to this project based on the industry and problem described",
-  "businessProblem": "Clear description of the problem or opportunity that this project addresses",
-  "solution": "How this project solves the problem with specific technical approach",
-  "visionAndGoal": "Long-term vision and specific measurable goals for the project",
+  "documentId": "PROP-2026-XXXX (generate unique ID like PROP-2026-001)",
+  "documentOwner": "EXACT company/owner name from description or 'SequenceIT' as default",
+  "issueDate": "${new Date().toISOString().split('T')[0]}",
+  "projectTitle": "EXACT project title from description (DO NOT REPHRASE)",
+  "startingDate": "Start date from description or calculate from issue date",
+  "handoverDate": "End date based on EXACT timeline mentioned or calculated",
+  
+  "documentHistory": [
+    {"version": "1.0", "date": "${new Date().toISOString().split('T')[0]}", "changes": "Initial Draft"}
+  ],
+  
+  "documentApproval": [
+    {"role": "Project Manager", "name": "To be assigned", "date": ""}
+  ],
+  
+  "executiveSummary": "2-3 detailed paragraphs covering: project vision, main goals, expected outcomes, and high-level timeline. Write professionally as if presenting to executives.",
+  
+  "background": "2-3 paragraphs providing: industry context, why this project is needed, relevant market conditions. If user provides background info, use it EXACTLY.",
+  
+  "requirements": {
+    "businessProblem": "Detailed description of the problem/opportunity this project addresses. Include pain points, current situation, and business impact.",
+    "solution": "Comprehensive explanation of the proposed solution. Include technical approach, key technologies, architecture, and how it solves the problem."
+  },
+  
+  "proposal": {
+    "visionAndGoal": "Detailed long-term vision (2-3 paragraphs): specific project objectives, measurable goals, success criteria, and expected business impact.",
+    "includeDeliverables": true
+  },
+  
   "deliverables": [
-    {"feature": "Feature/Module name", "description": "Detailed feature description"}
+    {"feature": "EXACT feature/module name from description", "description": "Detailed description of functionality and what will be delivered"}
   ],
+  
   "timeframe": [
-    {"task": "Development phase or task name", "duration": "X Days/Weeks"}
+    {"task": "Task/Phase name (e.g., UI/UX Design, Backend Development, Testing)", "duration": "EXACT duration if provided (e.g., 20 Days, 3 Weeks)"}
   ],
+  
   "infrastructureCosts": [
-    {"item": "Infrastructure item (hosting, domains, APIs, etc.)", "qty": 1, "cost": 10000, "currency": "BDT"}
+    {"item": "Infrastructure item (AWS/Azure hosting, domain, SSL, CDN, APIs, database, etc.)", "qty": 1, "cost": 5000, "currency": "BDT"}
   ],
+  
   "developmentCosts": [
-    {"task": "Development task or phase", "cost": 500000, "currency": "BDT"}
+    {"task": "Development phase (Frontend Dev, Backend API, Database Design, Testing, Deployment, etc.)", "cost": 100000, "currency": "BDT"}
   ],
-  "maintenanceCosts": [
-    {"service": "Maintenance service (optional)", "cost": 50000, "currency": "BDT"}
-  ],
-  "riskControl": [
-    {"risk": "Risk description (optional)", "mitigation": 100000, "currency": "BDT"}
-  ],
-  "ownership": "Standard description of ownership and IP rights transfer upon full payment",
-  "totalBudget": 50000
+  
+  "maintenanceCosts": {
+    "include": true,
+    "costs": [
+      {"service": "Maintenance service (Monthly Support, Bug Fixes, Updates, Monitoring, etc.)", "cost": 10000, "currency": "BDT"}
+    ]
+  },
+  
+  "riskControl": {
+    "include": true,
+    "budget": [
+      {"risk": "Risk issue name (Server Downtime Insurance, Security Breach Coverage, Scope Change Buffer, etc.)", "mitigation": 20000, "currency": "BDT"}
+    ]
+  },
+  
+  "totalBudget": 0,
+  
+  "ownership": "The Client shall own all rights, title, and interest in the deliverables upon full payment of the project fee. All source code, documentation, and assets will be transferred. The Company retains the right to use the project for portfolio purposes unless otherwise agreed.",
+  
+  "ownershipTable": [
+    {"role": "Developer/Owner", "name": "Company/Team Name", "contact": "Email or Phone"}
+  ]
 }
 
-IMPORTANT:
-- Use EXACT data from the description - do not modify project titles, budgets, features, or timelines
-- Generate 5-10 detailed deliverables (use mentioned features verbatim if provided)
-- Create 6-12 timeframe tasks covering all development phases (preserve mentioned timeline)
-- Provide realistic infrastructure and development cost breakdowns (honor mentioned budget)
-- Total budget should EXACTLY match the mentioned budget, or be appropriate for scope if not mentioned
-- Use BDT (Bangladeshi Taka) currency for all costs
-- Make all content professional, detailed, and business-ready`;
+IMPORTANT REQUIREMENTS:
+1. Generate 8-15 detailed deliverables with specific features mentioned by user VERBATIM
+2. Create 8-15 timeframe tasks with realistic durations:
+   - Include: Requirements Gathering, UI/UX Design, Frontend Development, Backend Development, Database Design, API Integration, Testing, Deployment, Documentation
+   - Use EXACT timeline if user provides it (e.g., if user says "2 months", distribute tasks across ~60 days)
+3. Break down costs realistically:
+   - Infrastructure: 3-8% of total (hosting, domain, SSL, CDN, APIs, database, storage)
+   - Development: 75-85% of total (break down by: Frontend, Backend, Database, API, Testing, Deployment)
+   - Maintenance: 5-10% of total (ALWAYS INCLUDE with realistic costs - monthly support, bug fixes, updates, monitoring, server maintenance)
+   - Risk Control: 5-10% of total (ALWAYS INCLUDE with realistic costs - contingency buffer, security breach coverage, scope change buffer, downtime insurance)
+4. MANDATORY: Always set "include": true for maintenanceCosts and riskControl with actual cost values (never 0)
+5. If user provides EXACT budget, ensure totalBudget matches PRECISELY - adjust cost breakdown to sum to that exact amount
+6. All currency MUST be "BDT" (Bangladeshi Taka)
+7. Calculate totalBudget = sum of (all infrastructure costs × qty) + (all development costs) + (all maintenance costs) + (all risk costs)
+8. Use professional, business-ready language suitable for formal client proposals
+9. Generate at least 1-3 maintenance service items with realistic monthly/yearly costs
+10. Generate at least 1-3 risk control items with appropriate mitigation budgets`;
 }
 
 // Parse AI Response
@@ -221,13 +277,14 @@ function parseAIResponse(response) {
 
     // Validate required fields
     if (!data.projectTitle || !data.executiveSummary) {
-      throw new Error("Invalid response structure from AI");
+      throw new Error("Invalid response structure from AI - missing projectTitle or executiveSummary");
     }
 
     return data;
   } catch (error) {
     console.error("Parse error:", error);
-    throw new Error("Failed to parse AI response. Please try again.");
+    console.error("Response received:", response);
+    throw new Error(`Failed to generate JSON. Please adjust your prompt. See 'failed_generation' for more details.`);
   }
 }
 
@@ -252,14 +309,14 @@ function displayProposal(data) {
       </div>
 
       <div class="content-section">
-        <h3>🎯 Business Problem & Solution</h3>
-        <p><strong>Problem:</strong> ${data.businessProblem}</p>
-        <p><strong>Solution:</strong> ${data.solution}</p>
+        <h3>🎯 Requirements</h3>
+        <p><strong>Business Problem:</strong> ${data.requirements?.businessProblem || 'N/A'}</p>
+        <p><strong>Solution:</strong> ${data.requirements?.solution || 'N/A'}</p>
       </div>
 
       <div class="content-section">
-        <h3>🚀 Vision and Goals</h3>
-        <p>${data.visionAndGoal}</p>
+        <h3>🚀 Proposal - Vision and Goals</h3>
+        <p>${data.proposal?.visionAndGoal || 'N/A'}</p>
       </div>
 
       ${
@@ -386,6 +443,80 @@ function displayProposal(data) {
       </div>
       `
           : ""
+      }
+
+      ${
+        data.maintenanceCosts && data.maintenanceCosts.include && data.maintenanceCosts.costs && data.maintenanceCosts.costs.length > 0
+          ? `
+      <div class="content-section">
+        <h3>🔧 Maintenance</h3>
+        <table class="content-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Cost</th>
+              <th>Currency</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.maintenanceCosts.costs
+              .map(
+                (m) => `
+              <tr>
+                <td>${m.service}</td>
+                <td>${m.cost}</td>
+                <td>${m.currency}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+      `
+          : `
+      <div class="content-section">
+        <h3>🔧 Maintenance</h3>
+        <p>Maintenance is not included in this proposal.</p>
+      </div>
+      `
+      }
+
+      ${
+        data.riskControl && data.riskControl.include && data.riskControl.budget && data.riskControl.budget.length > 0
+          ? `
+      <div class="content-section">
+        <h3>⚠️ Risk Control</h3>
+        <table class="content-table">
+          <thead>
+            <tr>
+              <th>Risk</th>
+              <th>Mitigation Cost</th>
+              <th>Currency</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.riskControl.budget
+              .map(
+                (r) => `
+              <tr>
+                <td>${r.risk}</td>
+                <td>${r.mitigation}</td>
+                <td>${r.currency}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+      `
+          : `
+      <div class="content-section">
+        <h3>⚠️ Risk Control</h3>
+        <p>Risk control measures are not included in this proposal.</p>
+      </div>
+      `
       }
 
       <div class="content-section" style="border-left-color: #27ae60;">
