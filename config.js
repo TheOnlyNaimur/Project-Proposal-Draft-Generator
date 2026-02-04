@@ -31,3 +31,10 @@ function verifyUserLoggedIn() {
   }
   return user;
 }
+
+// Groq AI Configuration
+const CONFIG = {
+  GROQ_API_KEY: "REDACTED",
+  GROQ_API_URL: "https://api.groq.com/openai/v1/chat/completions",
+  MODEL_NAME: "openai/gpt-oss-120b",
+};

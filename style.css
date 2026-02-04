@@ -247,11 +247,11 @@ textarea:focus {
 }
 
 .h1-input {
-  font-size: 36px;
+  font-size: 30px; /* this is the line for titles size */
   font-weight: 800;
   text-align: center;
   border: none;
-  border-bottom: 3px solid var(--primary);
+  /* border-bottom: 1px solid var(--primary); */
   padding: 20px 0;
   margin: 28px 0;
   line-height: 1.2;

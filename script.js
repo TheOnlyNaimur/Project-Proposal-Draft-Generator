@@ -345,4 +345,380 @@ window.onload = () => {
   });
 
   calculateTotals(); // Run once on load
+  checkAndApplyAIProposal(); // Check for AI-generated data
 };
+
+// Check for AI-generated proposal data on page load
+function checkAndApplyAIProposal() {
+  const aiData = localStorage.getItem("aiGeneratedProposal");
+  if (aiData) {
+    try {
+      const proposalData = JSON.parse(aiData);
+      if (confirm("Apply AI-generated proposal data to this document?")) {
+        applyProposalData(proposalData);
+        localStorage.removeItem("aiGeneratedProposal");
+      } else {
+        localStorage.removeItem("aiGeneratedProposal");
+      }
+    } catch (error) {
+      console.error("Error applying AI data:", error);
+      localStorage.removeItem("aiGeneratedProposal");
+    }
+  }
+}
+
+// Apply AI-generated data to form fields
+function applyProposalData(data) {
+  // Document Control
+  if (data.documentId) {
+    const docIdInput = document.querySelector('input[placeholder*="PROP-"]');
+    if (docIdInput) docIdInput.value = data.documentId;
+  }
+
+  if (data.documentOwner) {
+    const ownerInput = document.querySelector(
+      'input[placeholder*="Your Name/Company"]',
+    );
+    if (ownerInput) ownerInput.value = data.documentOwner;
+  }
+
+  if (data.issueDate) {
+    const dateInput = document.getElementById("currentDate");
+    if (dateInput) dateInput.value = data.issueDate;
+  }
+
+  // Project Title
+  if (data.projectTitle) {
+    const titleInputs = document.querySelectorAll(
+      'input[placeholder*="PROJECT TITLE"], input[placeholder*="Project Name"]',
+    );
+    titleInputs.forEach((input) => (input.value = data.projectTitle));
+  }
+
+  // Dates
+  if (data.startingDate) {
+    const startInputs = document.querySelectorAll('input[type="date"]');
+    if (startInputs[1]) startInputs[1].value = data.startingDate;
+  }
+
+  if (data.handoverDate) {
+    const handoverInputs = document.querySelectorAll('input[type="date"]');
+    if (handoverInputs[2]) handoverInputs[2].value = data.handoverDate;
+  }
+
+  // Document History
+  if (data.documentHistory && data.documentHistory.length > 0) {
+    const historyTable = document.querySelector("#historyTable tbody");
+    if (historyTable) {
+      historyTable.innerHTML = "";
+      data.documentHistory.forEach((item) => {
+        const row = historyTable.insertRow();
+        row.innerHTML = `
+          <td><input type="text" value="${escapeHtml(item.version || "1.0")}" /></td>
+          <td><input type="date" value="${item.date || ""}" /></td>
+          <td><input type="text" value="${escapeHtml(item.changes || "")}" /></td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Document Approval
+  if (data.documentApproval && data.documentApproval.length > 0) {
+    const approvalTable = document.querySelector("#approvalTable tbody");
+    if (approvalTable) {
+      approvalTable.innerHTML = "";
+      data.documentApproval.forEach((item) => {
+        const row = approvalTable.insertRow();
+        row.innerHTML = `
+          <td><input type="text" value="${escapeHtml(item.role || "")}" /></td>
+          <td><input type="text" value="${escapeHtml(item.name || "")}" /></td>
+          <td><div class="sig-line"></div></td>
+          <td><input type="date" value="${item.date || ""}" /></td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Executive Summary
+  if (data.executiveSummary) {
+    const summaryTextarea = document.querySelector(
+      'textarea[placeholder*="vision, goal"]',
+    );
+    if (summaryTextarea) {
+      summaryTextarea.value = data.executiveSummary;
+      autoExpandTextarea(summaryTextarea);
+    }
+  }
+
+  // Background
+  if (data.background) {
+    const backgroundTextarea = document.querySelector(
+      'textarea[placeholder*="Previous context"]',
+    );
+    if (backgroundTextarea) {
+      backgroundTextarea.value = data.background;
+      autoExpandTextarea(backgroundTextarea);
+    }
+  }
+
+  // Requirements - Business Problem and Solution
+  if (data.requirements) {
+    const sectionTitles = document.querySelectorAll(".section-title");
+    for (let i = 0; i < sectionTitles.length; i++) {
+      if (sectionTitles[i].textContent.trim().includes("3. Requirements")) {
+        const section = sectionTitles[i].closest(".printable-section");
+        if (section) {
+          const subTitles = section.querySelectorAll(".sub-title");
+
+          if (subTitles[0] && data.requirements.businessProblem) {
+            const businessProblemTextarea = subTitles[0].nextElementSibling;
+            if (
+              businessProblemTextarea &&
+              businessProblemTextarea.tagName === "TEXTAREA"
+            ) {
+              businessProblemTextarea.value = data.requirements.businessProblem;
+              autoExpandTextarea(businessProblemTextarea);
+            }
+          }
+
+          if (subTitles[1] && data.requirements.solution) {
+            const solutionTextarea = subTitles[1].nextElementSibling;
+            if (solutionTextarea && solutionTextarea.tagName === "TEXTAREA") {
+              solutionTextarea.value = data.requirements.solution;
+              autoExpandTextarea(solutionTextarea);
+            }
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  // Proposal - Vision and Goals
+  if (data.proposal && data.proposal.visionAndGoal) {
+    const visionTextarea = document.querySelector(
+      'textarea[placeholder*="long-term vision"]',
+    );
+    if (visionTextarea) {
+      visionTextarea.value = data.proposal.visionAndGoal;
+      autoExpandTextarea(visionTextarea);
+    }
+  }
+
+  // Deliverables
+  if (data.deliverables && data.deliverables.length > 0) {
+    const deliverablesToggle = document.querySelector("#deliverablesToggle");
+    if (deliverablesToggle) deliverablesToggle.value = "yes";
+    const deliverablesContent = document.querySelector("#deliverablesContent");
+    if (deliverablesContent)
+      deliverablesContent.classList.remove("hidden-section");
+    const deliverablesNoText = document.querySelector("#deliverablesNoText");
+    if (deliverablesNoText) deliverablesNoText.style.display = "none";
+
+    const deliverablesTable = document.querySelector(
+      "#deliverablesTable tbody",
+    );
+    if (deliverablesTable) {
+      deliverablesTable.innerHTML = "";
+      data.deliverables.forEach((item) => {
+        const row = deliverablesTable.insertRow();
+        row.innerHTML = `
+          <td><input type="text" value="${escapeHtml(item.feature || "")}" /></td>
+          <td><input type="text" value="${escapeHtml(item.description || "")}" /></td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Timeframe
+  if (data.timeframe && data.timeframe.length > 0) {
+    const timeframeTable = document.querySelector("#timeframeTable tbody");
+    if (timeframeTable) {
+      timeframeTable.innerHTML = "";
+      data.timeframe.forEach((item, index) => {
+        const row = timeframeTable.insertRow();
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><input type="text" value="${escapeHtml(item.task || "")}" /></td>
+          <td><input type="text" value="${escapeHtml(item.duration || "")}" /></td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Infrastructure Costs
+  if (data.infrastructureCosts && data.infrastructureCosts.length > 0) {
+    const infraTable = document.querySelector("#infraTable tbody");
+    if (infraTable) {
+      infraTable.innerHTML = "";
+      data.infrastructureCosts.forEach((item, index) => {
+        const row = infraTable.insertRow();
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><input type="text" value="${escapeHtml(item.item || "")}" /></td>
+          <td><input type="number" value="${item.qty || 1}" oninput="calculateTotals()" /></td>
+          <td><input type="number" class="cost-input" value="${item.cost || 0}" oninput="calculateTotals()" /></td>
+          <td>
+            <select onchange="calculateTotals()">
+              <option value="BDT" ${item.currency === "BDT" ? "selected" : ""}>BDT (৳)</option>
+              <option value="USD" ${item.currency === "USD" ? "selected" : ""}>USD ($)</option>
+              <option value="EUR" ${item.currency === "EUR" ? "selected" : ""}>EUR (€)</option>
+            </select>
+          </td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Development Costs
+  if (data.developmentCosts && data.developmentCosts.length > 0) {
+    const devTable = document.querySelector("#devCostTable tbody");
+    if (devTable) {
+      devTable.innerHTML = "";
+      data.developmentCosts.forEach((item, index) => {
+        const row = devTable.insertRow();
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><input type="text" value="${escapeHtml(item.task || "")}" /></td>
+          <td><input type="number" class="cost-input" value="${item.cost || 0}" oninput="calculateTotals()" /></td>
+          <td>
+            <select onchange="calculateTotals()">
+              <option ${item.currency === "BDT" || !item.currency ? "selected" : ""}>BDT</option>
+              <option ${item.currency === "USD" ? "selected" : ""}>USD</option>
+              <option ${item.currency === "EUR" ? "selected" : ""}>EUR</option>
+            </select>
+          </td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Maintenance Costs
+  if (
+    data.maintenanceCosts &&
+    data.maintenanceCosts.include &&
+    data.maintenanceCosts.costs &&
+    data.maintenanceCosts.costs.length > 0
+  ) {
+    const maintToggle = document.querySelector("#maintToggle");
+    if (maintToggle) maintToggle.value = "yes";
+    const maintContent = document.querySelector("#maintContent");
+    if (maintContent) {
+      maintContent.classList.remove("hidden-section");
+      maintContent.classList.add("show");
+    }
+    const maintNoText = document.querySelector("#maintNoText");
+    if (maintNoText) maintNoText.style.display = "none";
+
+    const maintTable = document.querySelector("#maintTable tbody");
+    if (maintTable) {
+      maintTable.innerHTML = "";
+      data.maintenanceCosts.costs.forEach((item, index) => {
+        const row = maintTable.insertRow();
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><input type="text" value="${escapeHtml(item.service || "")}" /></td>
+          <td><input type="number" class="cost-input" value="${item.cost || 0}" oninput="calculateTotals()" /></td>
+          <td>
+            <select onchange="calculateTotals()">
+              <option ${item.currency === "BDT" || !item.currency ? "selected" : ""}>BDT</option>
+              <option ${item.currency === "USD" ? "selected" : ""}>USD</option>
+            </select>
+          </td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Risk Control
+  if (
+    data.riskControl &&
+    data.riskControl.include &&
+    data.riskControl.budget &&
+    data.riskControl.budget.length > 0
+  ) {
+    const riskToggle = document.querySelector("#riskToggle");
+    if (riskToggle) riskToggle.value = "yes";
+    const riskContent = document.querySelector("#riskContent");
+    if (riskContent) {
+      riskContent.classList.remove("hidden-section");
+      riskContent.classList.add("show");
+    }
+    const riskNoText = document.querySelector("#riskNoText");
+    if (riskNoText) riskNoText.style.display = "none";
+
+    const riskTable = document.querySelector("#riskTable tbody");
+    if (riskTable) {
+      riskTable.innerHTML = "";
+      data.riskControl.budget.forEach((item, index) => {
+        const row = riskTable.insertRow();
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><input type="text" value="${escapeHtml(item.risk || "")}" /></td>
+          <td><input type="number" class="cost-input" value="${item.mitigation || 0}" oninput="calculateTotals()" /></td>
+          <td>
+            <select onchange="calculateTotals()">
+              <option ${item.currency === "BDT" || !item.currency ? "selected" : ""}>BDT</option>
+              <option ${item.currency === "USD" ? "selected" : ""}>USD</option>
+            </select>
+          </td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  // Ownership
+  if (data.ownership) {
+    document.querySelectorAll(".section-title").forEach((title) => {
+      if (title.textContent.includes("11. Ownership")) {
+        const section = title.closest(".printable-section");
+        const textarea = section.querySelector("textarea.auto-expand");
+        if (textarea) {
+          textarea.value = data.ownership;
+          autoExpandTextarea(textarea);
+        }
+      }
+    });
+  }
+
+  // Ownership Table
+  if (data.ownershipTable && data.ownershipTable.length > 0) {
+    const ownershipTable = document.querySelector("#ownershipTable tbody");
+    if (ownershipTable) {
+      ownershipTable.innerHTML = "";
+      data.ownershipTable.forEach((item) => {
+        const row = ownershipTable.insertRow();
+        row.innerHTML = `
+          <td><input type="text" value="${escapeHtml(item.role || "")}" /></td>
+          <td><input type="text" value="${escapeHtml(item.name || "")}" /></td>
+          <td><input type="text" value="${escapeHtml(item.contact || "")}" /></td>
+          <td class="no-print"></td>
+        `;
+      });
+    }
+  }
+
+  calculateTotals();
+  alert("✓ AI-generated proposal data applied successfully!");
+}
+
+// Helper function to escape HTML to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Helper function to auto-expand textareas
+function autoExpandTextarea(textarea) {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+}

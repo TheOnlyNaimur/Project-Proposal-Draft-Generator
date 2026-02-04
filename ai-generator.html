@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Proposal Generator - Pro-Draft</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="ai-generator.css" />
+  </head>
+  <body>
+    <!-- Side Navigation -->
+    <div class="no-print side-nav">
+      <h2>Pro-Draft</h2>
+      <a
+        href="index.html"
+        class="tab-btn"
+        style="display: block; text-decoration: none"
+      >
+        ← Back to Editor
+      </a>
+      <hr />
+      <h3 style="color: #7f8c8d; font-size: 14px; margin: 20px 0 10px">
+        AI Generator
+      </h3>
+    </div>
+
+    <!-- Main Content -->
+    <main class="content-area">
+      <div
+        class="paper"
+        style="
+          max-width: 100%;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+        "
+      >
+        <!-- Left Side: Input Form -->
+        <div style="border-right: 2px solid #ecf0f1; padding-right: 30px">
+          <h2 class="section-title">✨ AI Proposal Generator</h2>
+          <p style="color: #7f8c8d; margin-bottom: 20px">
+            Describe your project in natural language and let AI generate a
+            professional proposal draft for you.
+          </p>
+
+          <form id="aiInputForm">
+            <label
+              style="display: block; font-weight: 600; margin-bottom: 10px"
+            >
+              📝 Project Description
+            </label>
+            <textarea
+              id="projectDescription"
+              placeholder="Example: I need a tour guide website for Bangladesh tourism. Budget is 500,000 BDT. Timeline is 2 months. Features include tour package browsing, booking system, payment gateway integration, admin dashboard, and customer reviews."
+              style="
+                width: 100%;
+                min-height: 300px;
+                padding: 15px;
+                border: 2px solid #ecf0f1;
+                border-radius: 8px;
+                font-family: inherit;
+                font-size: 14px;
+                line-height: 1.6;
+                resize: vertical;
+              "
+            ></textarea>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px">
+              <button
+                type="button"
+                class="no-print add-row-btn"
+                id="generateBtn"
+                style="
+                  flex: 1;
+                  background: #3498db;
+                  color: white;
+                  padding: 15px;
+                  font-weight: bold;
+                "
+              >
+                🚀 Generate Proposal Draft
+              </button>
+              <button
+                type="button"
+                class="no-print add-row-btn"
+                id="clearBtn"
+                style="background: #95a5a6; color: white; padding: 15px"
+              >
+                🗑️ Clear
+              </button>
+            </div>
+          </form>
+
+          <div
+            style="
+              margin-top: 30px;
+              padding: 15px;
+              background: #fff3cd;
+              border-left: 4px solid #ffc107;
+              border-radius: 4px;
+            "
+          >
+            <strong>💡 Tips:</strong>
+            <ul style="margin: 10px 0 0 20px; color: #856404">
+              <li>Mention your budget amount</li>
+              <li>Specify desired timeline</li>
+              <li>List key features/deliverables</li>
+              <li>Describe the target industry</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Side: Preview -->
+        <div style="padding-left: 30px">
+          <h2 class="section-title">👁️ Preview</h2>
+
+          <!-- Loading State -->
+          <div
+            id="loadingState"
+            style="display: none; text-align: center; padding: 40px"
+          >
+            <div class="spinner"></div>
+            <p
+              id="loadingMessage"
+              style="margin-top: 20px; color: #3498db; font-weight: 600"
+            >
+              Analyzing project requirements...
+            </p>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <!-- Preview Content -->
+          <div
+            id="previewContent"
+            style="max-height: 70vh; overflow-y: auto; padding-right: 10px"
+          >
+            <p
+              style="
+                text-align: center;
+                color: #7f8c8d;
+                padding: 40px;
+                font-style: italic;
+              "
+            >
+              🤖 Describe your project in the text box and click "Generate
+              Proposal Draft" to see AI-generated content here.
+            </p>
+          </div>
+
+          <!-- Action Buttons (shown after generation) -->
+          <div
+            id="previewActions"
+            style="display: none; margin-top: 30px; display: flex; gap: 10px"
+          >
+            <button
+              class="no-print add-row-btn"
+              id="applyBtn"
+              style="
+                flex: 1;
+                background: #27ae60;
+                color: white;
+                padding: 15px;
+                font-weight: bold;
+              "
+            >
+              ✓ Apply to Main Editor
+            </button>
+            <button
+              class="no-print add-row-btn"
+              id="regenerateBtn"
+              style="background: #3498db; color: white; padding: 15px"
+            >
+              🔄 Regenerate
+            </button>
+            <button
+              class="no-print add-row-btn"
+              id="exportBtn"
+              style="background: #95a5a6; color: white; padding: 15px"
+            >
+              💾 Export JSON
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Load configuration before main script -->
+    <script src="config.js"></script>
+    <script src="ai-generator.js"></script>
+  </body>
+</html>

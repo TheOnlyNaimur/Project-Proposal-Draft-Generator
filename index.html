@@ -9,6 +9,13 @@
   <body>
     <div class="no-print side-nav">
       <h2>Pro-Draft</h2>
+      <a
+        class="tab-btn"
+        href="ai-generator.html"
+        style="display: block; text-decoration: none"
+      >
+        ✨AI Generator
+      </a>
       <button class="tab-btn active" onclick="openTab(event, 'editor')">
         1. Proposal Editor
       </button>
@@ -21,6 +28,7 @@
       <button class="tab-btn" onclick="openTab(event, 'drafts')">
         4. Saved Drafts
       </button>
+
       <hr />
       <button
         class="download-btn save-draft-btn"
@@ -774,7 +782,9 @@ The Client shall own all rights, title, and interest in the deliverables upon fu
       </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script src="script.js"></script>
-    <script src="draft-manager.js"></script>
+    <script src="draft-manager-supabase.js"></script>
   </body>
 </html>
